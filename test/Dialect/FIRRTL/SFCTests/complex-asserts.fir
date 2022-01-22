@@ -22,9 +22,10 @@ circuit Foo:
 
     ; CHECK: always @(posedge clock) begin
     ; CHECK-NEXT: `ifndef SYNTHESIS
+    ; CHECK-NEXT:   if (enable) begin
 
     ; assert with predicate only
-    ; CHECK-NEXT: if (enable & ~(predicate1 | reset)) begin
+    ; CHECK-NEXT: if (~(predicate1 | reset)) begin
     ; CHECK-NEXT:   if (`ASSERT_VERBOSE_COND_)
     ; CHECK-NEXT:     $error("Assertion failed (verification library): ");
     ; CHECK-NEXT:   if (`STOP_COND_)
@@ -35,7 +36,7 @@ circuit Foo:
       stop(clock, enable, 1)
 
     ; assert with message
-    ; CHECK-NEXT: if (enable & ~(predicate2 | reset)) begin
+    ; CHECK-NEXT: if (~(predicate2 | reset)) begin
     ; CHECK-NEXT:   if (`ASSERT_VERBOSE_COND_)
     ; CHECK-NEXT:     $error("Assertion failed (verification library): sum =/= 1.U");
     ; CHECK-NEXT:   if (`STOP_COND_)
@@ -46,7 +47,7 @@ circuit Foo:
       stop(clock, enable, 1)
 
     ; assert with when
-    ; CHECK-NEXT: if (other & enable & ~(predicate3 | reset)) begin
+    ; CHECK-NEXT: if (other & ~(predicate3 | reset)) begin
     ; CHECK-NEXT:   if (`ASSERT_VERBOSE_COND_)
     ; CHECK-NEXT:     $error("Assertion failed (verification library): Assert with when");
     ; CHECK-NEXT:   if (`STOP_COND_)
@@ -58,7 +59,7 @@ circuit Foo:
         stop(clock, enable, 1)
 
     ; assert with message with arguments
-    ; CHECK-NEXT: if (enable & ~(predicate4 | reset)) begin
+    ; CHECK-NEXT: if (~(predicate4 | reset)) begin
     ; CHECK-NEXT:   if (`ASSERT_VERBOSE_COND_)
     ; CHECK-NEXT:     $error("Assertion failed (verification library): expected sum === 2.U but got %d", sum);
     ; CHECK-NEXT:   if (`STOP_COND_)
@@ -68,6 +69,7 @@ circuit Foo:
       printf(clock, enable, "foo [verif-library-assert]<extraction-summary>{\"predicateModifier\":{\"type\":\"noMod\"},\"format\":{\"type\":\"ifElseFatal\"},\"baseMsg\":\"Assertion failed (verification library): expected sum === 2.U but got %d\"}</extraction-summary> bar", sum)
       stop(clock, enable, 1)
 
+    ; CHECK-NEXT: end
     ; CHECK-NEXT: `endif
     ; CHECK-NEXT: end
 
