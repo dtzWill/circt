@@ -137,3 +137,26 @@ firrtl.circuit "Top"   {
     firrtl.strictconnect %c, %A_c : !firrtl.uint<1>
   }
 }
+
+// -----
+
+firrtl.circuit "UnusedOutput"  {
+  // CHECK-LABEL: @Sub
+  // CHECK-NOT:     out %c
+  firrtl.module private @Sub(in %a: !firrtl.uint<1>, out %b: !firrtl.uint<1>, out %c: !firrtl.uint<1>) {
+    // CHECK-NEXT: %[[c_wire:.+]] = firrtl.wire
+    // CHECK-NEXT: firrtl.strictconnect %b, %[[c_wire]]
+    firrtl.strictconnect %b, %c : !firrtl.uint<1>
+    // CHECK-NEXT: %[[not_a:.+]] = firrtl.not %a
+    %0 = firrtl.not %a : (!firrtl.uint<1>) -> !firrtl.uint<1>
+    // CHECK-NEXT: firrtl.strictconnect %[[c_wire]], %[[not_a]]
+    firrtl.strictconnect %c, %0 : !firrtl.uint<1>
+  }
+  // CHECK-LABEL: @UnusedOutput
+  firrtl.module @UnusedOutput(in %a: !firrtl.uint<1>, out %b: !firrtl.uint<1>) {
+    // CHECK: %sub_a, %sub_b = firrtl.instance sub
+    %sub_a, %sub_b, %sub_c = firrtl.instance sub  @Sub(in a: !firrtl.uint<1>, out b: !firrtl.uint<1>, out c: !firrtl.uint<1>)
+    firrtl.strictconnect %sub_a, %a : !firrtl.uint<1>
+    firrtl.strictconnect %b, %sub_b : !firrtl.uint<1>
+  }
+}
