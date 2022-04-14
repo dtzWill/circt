@@ -546,7 +546,7 @@ processBuffer(MLIRContext &context, TimingScope &ts, llvm::SourceMgr &sourceMgr,
       auto &modulePM = pm.nest<hw::HWModuleOp>();
       modulePM.addPass(createCSEPass());
       modulePM.addPass(createSimpleCanonicalizerPass());
-      modulePM.addPass(sv::createHWCleanupPass(/*aggressiveIfOpMerge*/ true));
+      modulePM.addPass(sv::createHWCleanupPass(/*convertIfToCase*/ true));
     }
   }
 
